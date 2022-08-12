@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@drawable/bg_main_shape">
+
+    <ImageView
+        android:id="@+id/base_top_img_back"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/back_img"
+        android:contentDescription="TODO" android:contentDescription="TODO" android:padding="15dp"
+        android:layout_gravity="center_vertical"
+        />
+
+    <TextView
+        android:id="@+id/base_top_text_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="15sp"
+        android:textColor="#ffffff"
+        tools:text="测试"
+        android:gravity="center"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_gravity="right"
+        >
+
+        <LinearLayout
+            android:id="@+id/base_top_frame_right"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:visibility="gone"
+
+            >
+            <ImageView
+                android:id="@+id/base_top_img_right"
+                android:layout_width="20dp" android:contentDescription="TODO"  android:contentDescription="TODO" 
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/base_top_frame_right2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:visibility="gone"
+            >
+            <ImageView
+                android:id="@+id/base_top_img_right2"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="TODO" android:contentDescription="TODO" android:visibility="visible"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/base_top_text_right"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:textSize="13sp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="right|center"
+        />
+</FrameLayout>
