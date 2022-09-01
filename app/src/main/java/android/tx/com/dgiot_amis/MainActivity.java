@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-
         editText = findViewById(R.id.edit_url);
         btnWeb = findViewById(R.id.btn_web);
 

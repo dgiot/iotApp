@@ -25,15 +25,15 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
-public class DgiotService extends Service  {
+public class DgiotService extends Service {
 
     public final String TAG = DgiotService.class.getSimpleName();
-    private static MqttAndroidClient  mqttAndroidClient;
-    private        MqttConnectOptions mMqttConnectOptions;
-    public    static    String HOST           = "tcp://dev.iotn2n.com:1883";//服务器地址（协议+地址+端口号）
-    public    static    String USERNAME       = "4d867367b4";//用户名
-    public    static    String PASSWORD       = "r:d6c6827fab11a76c5873bdfc6a8778cb";//密码
-    public static String BIND_TOPIC  = "$dg/user/uniapp/r:d6c6827fab11a76c5873bdfc6a8778cb/report";//订阅服务器pic
+    private static MqttAndroidClient mqttAndroidClient;
+    private MqttConnectOptions mMqttConnectOptions;
+    public static String HOST = "tcp://dev.iotn2n.com:1883";//服务器地址（协议+地址+端口号）
+    public static String USERNAME = "4d867367b4";//用户名
+    public static String PASSWORD = "r:d6c6827fab11a76c5873bdfc6a8778cb";//密码
+    public static String BIND_TOPIC = "$dg/user/uniapp/r:d6c6827fab11a76c5873bdfc6a8778cb/report";//订阅服务器pic
     //public static String RESPONSE_TOPIC = "message_arrived";//响应主题
     public static String RESPONSE_TOPIC = "$dg/thing/uniapp/r:d6c6827fab11a76c5873bdfc6a8778cb/report";//响应主题
 
@@ -41,7 +41,7 @@ public class DgiotService extends Service  {
 //    @RequiresApi(api = 26)
 //    public  String CLIENTID   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 //            ? Build.getSerial() : Build.SERIAL;
-    public static String CLIENTID   = "r:d6c6827fab11a76c5873bdfc6a8778cb";
+    public static String CLIENTID = "r:d6c6827fab11a76c5873bdfc6a8778cb";
 
     public static int mNum = 0;
 
@@ -60,13 +60,13 @@ public class DgiotService extends Service  {
     /**
      * 开启服务
      */
-    public static void startService(Context mContext , String url , String user , String pwd) {
-        HOST = "tcp://"+ url +":1883";
+    public static void startService(Context mContext, String url, String user, String pwd) {
+        HOST = "tcp://" + url + ":1883";
         USERNAME = user;
         PASSWORD = pwd;
-        BIND_TOPIC = "$dg/user/uniapp/"+ pwd +"/report";
-        RESPONSE_TOPIC = "$dg/thing/uniapp/"+pwd+"/report";
-        CLIENTID = pwd;
+        BIND_TOPIC = "$dg/user/uniapp/" + pwd + "/report";
+        RESPONSE_TOPIC = "$dg/thing/uniapp/" + pwd + "/report";
+        CLIENTID = pwd + "_uniapp";
         mNum = 0;
         mContext.startService(new Intent(mContext, DgiotService.class));
     }
@@ -77,7 +77,7 @@ public class DgiotService extends Service  {
      * @param message 消息
      */
     public static void publish(String message) {
-        Log.e("sssd",message);
+        Log.e("sssd", message);
         String topic = RESPONSE_TOPIC;
         Integer qos = 2;
         Boolean retained = false;
@@ -195,7 +195,7 @@ public class DgiotService extends Service  {
             arg1.printStackTrace();
             Log.i(TAG, "连接失败 ");
             mNum++;
-            if( mNum < 5 ) {
+            if (mNum < 5) {
                 doClientConnection();//连接失败，重连（可关闭服务器进行模拟）
             }
         }
@@ -207,12 +207,12 @@ public class DgiotService extends Service  {
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             Log.i(TAG, "收到消息： " + new String(message.getPayload()));
             //收到消息，这里弹出Toast表示。如果需要更新UI，可以使用广播或者EventBus进行发送
-           // Toast.makeText(getApplicationContext(), "messageArrived: " + new String(message.getPayload()), Toast.LENGTH_LONG).show();
+            // Toast.makeText(getApplicationContext(), "messageArrived: " + new String(message.getPayload()), Toast.LENGTH_LONG).show();
             //收到其他客户端的消息后，响应给对方告知消息已到达或者消息有问题等
 
-            ReceiveMsgBean msgBean = JSONObject.parseObject( message.getPayload() ,ReceiveMsgBean.class );
+            ReceiveMsgBean msgBean = JSONObject.parseObject(message.getPayload(), ReceiveMsgBean.class);
             EventBus.getDefault().post(msgBean);
-           // response("message arrived");
+            // response("message arrived");
         }
 
         @Override

@@ -28,7 +28,7 @@
         </activity>
 
         <service
-            android:name=".DgiotService" android:permission="" android:permission=""  
+            android:name=".DgiotService"
             android:enabled="true"
             android:exported="true" />
         <!-- 自己开启的服务,导入包,Android自带Mqtt的服务,需要注册 -->
