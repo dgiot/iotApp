@@ -25,6 +25,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
+
 public class DgiotService extends Service {
 
     public final String TAG = DgiotService.class.getSimpleName();

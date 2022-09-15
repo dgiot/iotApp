@@ -13,6 +13,9 @@ public class QrActivity extends AppCompatActivity implements QRCodeView.Delegate
     private Intent intent;
     private ZBarView zBarView;
 
+    int width = 300;
+    int height = 300;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
