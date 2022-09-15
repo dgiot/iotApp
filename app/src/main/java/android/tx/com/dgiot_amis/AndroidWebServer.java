@@ -1,4 +1,6 @@
 package android.tx.com.dgiot_amis;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import fi.iki.elonen.NanoHTTPD;
 
