@@ -31,6 +31,7 @@ public class AndroidWebServer extends NanoHTTPD {
     @Override
     public Response serve(IHTTPSession session) {
         String PreflightRequest;
+        webActivity.setnewset(false);
         Log.d("hallow", "session=" + session.getHeaders().toString());
         if (isPreflightRequest(session)) {
 //              如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
@@ -121,10 +122,6 @@ public class AndroidWebServer extends NanoHTTPD {
         Response resp = newFixedLengthResponse(map.toJSONString());
         resp.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS, TRACE, CONNECT, PATCH, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK");
         Log.d("hallow", "map=" + map.toJSONString());
-
-
-//        String Origin = O.substring(0,O.length()-2);
-//        resp.addHeader("Access-Control-Allow-Origin",Origin );
         String origin=session.getHeaders().get("origin");
         resp.addHeader("Access-Control-Allow-Origin", origin);
         resp.addHeader("Access-Control-Allow-Headers", "*");

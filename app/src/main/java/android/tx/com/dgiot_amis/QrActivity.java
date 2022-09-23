@@ -12,7 +12,7 @@ public class QrActivity extends AppCompatActivity implements QRCodeView.Delegate
 
     private Intent intent;
     private ZBarView zBarView;
-
+    private WebActivity webActivity = new WebActivity();
     int width = 300;
     int height = 300;
 
@@ -42,6 +42,7 @@ public class QrActivity extends AppCompatActivity implements QRCodeView.Delegate
         super.onStop();
         zBarView.stopCamera();
         zBarView.stopSpot();
+        webActivity.setnewset(true);
     }
 
     @Override
@@ -56,6 +57,7 @@ public class QrActivity extends AppCompatActivity implements QRCodeView.Delegate
     protected void onDestroy() {
         zBarView.onDestroy(); // 销毁二维码扫描控件
         super.onDestroy();
+        webActivity.setnewset(true);
     }
 
     @Override

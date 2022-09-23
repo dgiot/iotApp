@@ -371,7 +371,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     }
 
     public String geturl() {
-        if(this.url.equals("") || !newset){
+        if(!newset){
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -387,5 +387,11 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
         this.url = url;
         this.newset=true;
     }
+    public void setnewset(Boolean a) {
+
+        this.newset=a;
+    }
+
+
 
 }
