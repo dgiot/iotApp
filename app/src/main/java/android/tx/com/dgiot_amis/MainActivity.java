@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if( editText.getText().toString().trim().equals("") ){
                     intent = new Intent(MainActivity.this , WebActivity.class);
-                    intent.putExtra("webUrl","http://dev.iotn2n.com/dgiot-amisp");
+//                    intent.putExtra("webUrl","http://dev.iotn2n.com/dgiot-amisp");
                     //intent.putExtra("webUrl","file:///android_asset/test/index.html");
-                    //intent.putExtra("webUrl","http://127.0.0.1:12345");
+                    intent.putExtra("webUrl","http://127.0.0.1:12345");
                     startActivity(intent);
                     return;
                 }

@@ -48,6 +48,10 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class WebActivity extends TakePhotoActivity implements EasyPermissions.PermissionCallbacks {
 
+
+
+    public static  String url="";
+    public static  boolean newset=false;
     private TakePhoto takePhoto;
     private WebView mWebView;
     private String mToken ,mUpImgUrl , mObjId , mIp;
@@ -285,6 +289,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
                            jsonObject.put("deviceid",receiveMsgBean.getDeviceid());
                            jsonObject.put("instruct","photo");
                            jsonObject.put("url",imgBackBean.getPath());
+                           seturl(imgBackBean.getPath());
                            DgiotService.publish( JSONObject.toJSONString( jsonObject ) );
                            if( proDialog != null ){
                                proDialog.close();
@@ -351,6 +356,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
                 jsonObject.put("deviceid",receiveMsgBean.getDeviceid());
                 jsonObject.put("instruct",QR_KEY);
                 jsonObject.put("url",data.getStringExtra("mCode"));
+                seturl(data.getStringExtra("mCode"));
                 DgiotService.publish( JSONObject.toJSONString( jsonObject ) );
 
                 break;
@@ -362,6 +368,24 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(mActivity);
+    }
+
+    public String geturl() {
+        if(this.url.equals("") || !newset){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            geturl();
+        }
+        this.newset=false;
+        return this.url;
+    }
+    public void seturl(String url) {
+
+        this.url = url;
+        this.newset=true;
     }
 
 }
