@@ -8,5 +8,3 @@
   + 可以帮助用户更好地管理物联网设备，提高物联网应用的效率。
 
 ![iotAPP.png](http://dgiot-1253666439.cos.ap-shanghai-fsi.myqcloud.com/shuwa_tech/zh/iotAPP.png)
-
-![dgiot_android_app.png](http://dgiot-1253666439.cos.ap-shanghai-fsi.myqcloud.com/shuwa_tech/zh/dgiot_android_app.png)
