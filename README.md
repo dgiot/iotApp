@@ -1,5 +1,9 @@
 # iotApp
 # iotApp
-  通过原生安卓app与amis混编程框架,既享受原生app强大的硬件服务功能，又能享受amis低代码快捷高效界面渲染交互的成本优势
+
+  dgiot iotApp是一款基于AMIS低代码与原生app技术相结合的安卓端物联网应用，可以快速构建各类物联网手机应用，而不需要重新构建app程序。
+  它可以帮助用户快速构建物联网应用，实现物联网设备的远程控制、数据采集、报警提醒等功能。
+  它支持多种物联网设备，可以实现设备的远程控制、数据采集、报警提醒等功能，
+  可以帮助用户更好地管理物联网设备，提高物联网应用的效率。
 
 ![dgiot_android_app.png](http://dgiot-1253666439.cos.ap-shanghai-fsi.myqcloud.com/shuwa_tech/zh/dgiot_android_app.png)
