@@ -9,13 +9,21 @@
   
   
  # 应用场景
+    智慧园区 数字车间  智慧畜牧
 
  # 技术架构
  
 ![iotAPP.png](http://dgiot-1253666439.cos.ap-shanghai-fsi.myqcloud.com/shuwa_tech/zh/iotAPP.png)
 
  # 应用商店
+   + 华为商店
+     
+   + 小米商店
  
  # 实战视频
+ 
+  + 数字车间
+  
+  +  智慧畜牧
  
  
