@@ -21,8 +21,7 @@
         android:theme="@style/AppTheme"
         tools:targetApi="n">
         <activity
-            android:name=".MainActivity"
-            android:screenOrientation="landscape">
+            android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,12 +38,10 @@
 
 
         <activity
-            android:name=".QrActivity"
-            android:screenOrientation="portrait" />
+            android:name=".QrActivity" />
         <activity
             android:name=".WebActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="landscape">
+            android:configChanges="orientation|keyboardHidden|screenSize">
         </activity>
     </application>
 

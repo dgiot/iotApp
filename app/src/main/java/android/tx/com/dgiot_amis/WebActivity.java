@@ -49,15 +49,14 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class WebActivity extends TakePhotoActivity implements EasyPermissions.PermissionCallbacks {
 
 
-
-    public static  String url="";
-    public static  boolean newset=false;
+    public static String url = "";
+    public static boolean newset = false;
     private TakePhoto takePhoto;
     private WebView mWebView;
-    private String mToken ,mUpImgUrl , mObjId , mIp;
+    private String mToken, mUpImgUrl, mObjId, mIp;
     private Activity mActivity;
     private Intent intent;
-    private String webUrl = "http://dev.iotn2n.com/dgiot-amisp";
+    private String webUrl = "https://prod.dgiotcloud.cn";
     private ReceiveMsgBean receiveMsgBean;
     private JSONObject jsonObject;
     public LoadingDialog proDialog;
@@ -73,22 +72,22 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
 
         proDialog = new LoadingDialog(this);
         mActivity = this;
-        takePhoto =  getTakePhoto();
+        takePhoto = getTakePhoto();
         mWebView = findViewById(R.id.webView);
 
         webUrl = getIntent().getStringExtra("webUrl");
 
         EventBus.getDefault().register(mActivity);
 
-        mToken = SharedPreUtil.getData(mActivity , "token");
-        mObjId = SharedPreUtil.getData(mActivity , "objId");
-        mIp = SharedPreUtil.getData(mActivity  ,"ip");
+        mToken = SharedPreUtil.getData(mActivity, "token");
+        mObjId = SharedPreUtil.getData(mActivity, "objId");
+        mIp = SharedPreUtil.getData(mActivity, "ip");
 
-        if( !mToken.equals("") && !mIp.equals("") && !mObjId.equals("") ){
-            DgiotService.startService(mActivity , mIp , mObjId, mToken);
-            Log.e("sssd",mIp +"   " +mObjId +"    "+mToken);
-            mUpImgUrl = "http://"+ mIp + ":1250/upload";
-            initCookie( mToken );
+        if (!mToken.equals("") && !mIp.equals("") && !mObjId.equals("")) {
+            DgiotService.startService(mActivity, mIp, mObjId, mToken);
+            Log.e("sssd", mIp + "   " + mObjId + "    " + mToken);
+            mUpImgUrl = "http://" + mIp + ":1250/upload";
+            initCookie(mToken);
         }
 
 
@@ -106,11 +105,11 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
 
     private void initMqtt(int i) {
         intType = i;
-        switch (i){
+        switch (i) {
             case 0:
                 //拍照
                 try {
-                    takePhoto.onPickFromCapture( DgiotUtils.createImageFile() );
+                    takePhoto.onPickFromCapture(DgiotUtils.createImageFile());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -124,7 +123,8 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
                 onInspectJurisdiction();
                 break;
 
-                default:break;
+            default:
+                break;
         }
 
     }
@@ -139,12 +139,12 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CookieManager  mCookieManager = CookieManager.getInstance();
+            CookieManager mCookieManager = CookieManager.getInstance();
             mCookieManager.setAcceptCookie(true);
             mCookieManager.setAcceptThirdPartyCookies(mWebView, true);
         }
 
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         //运行webview通过URI获取安卓文件
@@ -157,65 +157,66 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
         mWebView.setWebChromeClient(new MyWebChromeClient());//设置可以打开图片管理器
 
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.addJavascriptInterface(new JSToken(),"jstoken");
+        mWebView.addJavascriptInterface(new JSToken(), "jstoken");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         }
-       mWebView.loadUrl( webUrl );
+        mWebView.loadUrl(webUrl);
     }
 
 
     public class JSToken {
         // @JavascriptInterface 必须加上
         @JavascriptInterface
-        public void setJsToken(String ip , String objId ,String token) {
+        public void setJsToken(String ip, String objId, String token) {
             //Toast.makeText(WebActivity.this,ip,Toast.LENGTH_LONG).show();
-            Log.e("sssd","token ===  "+ token);
-            mObjId = objId; mToken = token;
-            mUpImgUrl = "http://"+ ip + ":1250/upload";
+            Log.e("sssd", "token ===  " + token);
+            mObjId = objId;
+            mToken = token;
+            mUpImgUrl = "http://" + ip + ":1250/upload";
 
-            Log.e("sssd",ip +"   " +objId +"    "+token);
-            DgiotService.startService(mActivity , ip , objId, token);
+            Log.e("sssd", ip + "   " + objId + "    " + token);
+            DgiotService.startService(mActivity, ip, objId, token);
 
-            initCookie( mToken );
+            initCookie(mToken);
 
-            SharedPreUtil.saveData(mActivity , "ip",ip);
-            SharedPreUtil.saveData(mActivity , "objId",objId );
-            SharedPreUtil.saveData(mActivity , "token",token );
+            SharedPreUtil.saveData(mActivity, "ip", ip);
+            SharedPreUtil.saveData(mActivity, "objId", objId);
+            SharedPreUtil.saveData(mActivity, "token", token);
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onReceiveMsg(ReceiveMsgBean msgBean){
-        if( msgBean != null ) {
+    public void onReceiveMsg(ReceiveMsgBean msgBean) {
+        if (msgBean != null) {
             receiveMsgBean = msgBean;
-            switch ( receiveMsgBean.getInstruct() ){
+            switch (receiveMsgBean.getInstruct()) {
                 case PHOTO_KEY:
                     initMqtt(0);
                     break;
                 case QR_KEY:
                     initMqtt(2);
                     break;
-                    default:break;
+                default:
+                    break;
             }
         }
     }
-
 
 
     @Override
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
         String iconPath = result.getImage().getOriginalPath();
-        Log.e("sssd","imagePath ===  "+iconPath);
+        Log.e("sssd", "imagePath ===  " + iconPath);
         onUpImg(iconPath);
     }
 
     @Override
     public void takeFail(TResult result, String msg) {
         super.takeFail(result, msg);
-       // Toast.makeText(WebActivity.this, "Error:" + msg, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(WebActivity.this, "Error:" + msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -254,10 +255,10 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN
-                && event.getKeyCode() == KeyEvent.KEYCODE_BACK )  {
-            if(mWebView.canGoBack()) {
+                && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            if (mWebView.canGoBack()) {
                 mWebView.goBack();
-            }else {
+            } else {
                 finish();
 
             }
@@ -267,41 +268,41 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     }
 
 
-    private void onUpImg( String fileUrl ){
+    private void onUpImg(String fileUrl) {
         proDialog.setLoadingText("正在上传").show();
         OkGo.<String>post(mUpImgUrl)
                 .tag(WebActivity.this)
-                .params("file", new File( fileUrl ))
-                .params("name","file")
-                .params("auth_token",mToken)
-                .params("scene","app")
-                .params("filename",System.currentTimeMillis()+".png")
-                .params("output","json")
-                .params("path","dgiot_file/uni_app/png/")
-                .params("code","")
-                .params("submit","upload")
+                .params("file", new File(fileUrl))
+                .params("name", "file")
+                .params("auth_token", mToken)
+                .params("scene", "app")
+                .params("filename", System.currentTimeMillis() + ".png")
+                .params("output", "json")
+                .params("path", "dgiot_file/uni_app/png/")
+                .params("code", "")
+                .params("submit", "upload")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                       UpImgBackBean imgBackBean =  JSONObject.parseObject( response.body().toString() ,UpImgBackBean.class );
-                       if( receiveMsgBean != null ){
-                           jsonObject = new JSONObject();
-                           jsonObject.put("deviceid",receiveMsgBean.getDeviceid());
-                           jsonObject.put("instruct","photo");
-                           jsonObject.put("url",imgBackBean.getPath());
-                           seturl(imgBackBean.getPath());
-                           DgiotService.publish( JSONObject.toJSONString( jsonObject ) );
-                           if( proDialog != null ){
-                               proDialog.close();
-                           }
-                       }
+                        UpImgBackBean imgBackBean = JSONObject.parseObject(response.body().toString(), UpImgBackBean.class);
+                        if (receiveMsgBean != null) {
+                            jsonObject = new JSONObject();
+                            jsonObject.put("deviceid", receiveMsgBean.getDeviceid());
+                            jsonObject.put("instruct", "photo");
+                            jsonObject.put("url", imgBackBean.getPath());
+                            seturl(imgBackBean.getPath());
+                            DgiotService.publish(JSONObject.toJSONString(jsonObject));
+                            if (proDialog != null) {
+                                proDialog.close();
+                            }
+                        }
                     }
 
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
                         Throwable throwable = response.getException();
-                        if( proDialog != null ){
+                        if (proDialog != null) {
                             proDialog.close();
                         }
                         Log.e("sssd", "上传文件错误" + throwable.getMessage());
@@ -314,11 +315,11 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
      */
     private void onInspectJurisdiction() {
         String[] perms = {
-                Manifest.permission.CAMERA ,
+                Manifest.permission.CAMERA,
 
         };
         if (EasyPermissions.hasPermissions(mActivity, perms)) {
-            if( intType == 2 ) {
+            if (intType == 2) {
                 intent = new Intent(mActivity, QrActivity.class);
                 startActivityForResult(intent, 101);
             }
@@ -326,41 +327,45 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
             EasyPermissions.requestPermissions(this, "APP需要权限", 200, perms);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // Forward results to EasyPermissions
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
+
     //成功
     @Override
     public void onPermissionsGranted(int requestCode, List<String> list) {
-        if( intType == 2 ) {
+        if (intType == 2) {
             intent = new Intent(mActivity, QrActivity.class);
             startActivityForResult(intent, 101);
         }
     }
+
     //失败
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
-        Toast.makeText( mActivity , "未全部授权，部分功能可能无法正常运行！",Toast.LENGTH_LONG ).show();
+        Toast.makeText(mActivity, "未全部授权，部分功能可能无法正常运行！", Toast.LENGTH_LONG).show();
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch ( resultCode ){
+        switch (resultCode) {
             case 33:
                 jsonObject = new JSONObject();
-                jsonObject.put("deviceid",receiveMsgBean.getDeviceid());
-                jsonObject.put("instruct",QR_KEY);
-                jsonObject.put("url",data.getStringExtra("mCode"));
+                jsonObject.put("deviceid", receiveMsgBean.getDeviceid());
+                jsonObject.put("instruct", QR_KEY);
+                jsonObject.put("url", data.getStringExtra("mCode"));
                 seturl(data.getStringExtra("mCode"));
-                DgiotService.publish( JSONObject.toJSONString( jsonObject ) );
+//                DgiotService.publish( JSONObject.toJSONString( jsonObject ) );
 
                 break;
-                default:break;
+            default:
+                break;
         }
     }
 
@@ -371,7 +376,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     }
 
     public String geturl() {
-        if(!newset){
+        if (!newset) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -379,19 +384,20 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
             }
             geturl();
         }
-        this.newset=false;
+        this.newset = false;
         return this.url;
     }
+
     public void seturl(String url) {
 
         this.url = url;
-        this.newset=true;
+        this.newset = true;
     }
+
     public void setnewset(Boolean a) {
 
-        this.newset=a;
+        this.newset = a;
     }
-
 
 
 }

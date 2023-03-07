@@ -34,21 +34,21 @@ public class AndroidWebServer extends NanoHTTPD {
         webActivity.setnewset(false);
         Log.d("hallow", "session=" + session.getHeaders().toString());
         if (isPreflightRequest(session)) {
-//              Èç¹ûÊÇÔò·¢ËÍCORSÏìÓ¦¸æËßä¯ÀÀHTTP·şÎñÖ§³ÖµÄMETHOD¼°HEADERSºÍÇëÇóÔ´
+//              å¦‚æœæ˜¯åˆ™å‘é€CORSå“åº”å‘Šè¯‰æµè§ˆHTTPæœåŠ¡æ”¯æŒçš„METHODåŠHEADERSå’Œè¯·æ±‚æº
             return responseCORS(session);
         }
         if (session.getUri().equals("/photo")) {
-//              Èç¹ûÊÇÔò·¢ËÍCORSÏìÓ¦¸æËßä¯ÀÀHTTP·şÎñÖ§³ÖµÄMETHOD¼°HEADERSºÍÇëÇóÔ´
+//              å¦‚æœæ˜¯åˆ™å‘é€CORSå“åº”å‘Šè¯‰æµè§ˆHTTPæœåŠ¡æ”¯æŒçš„METHODåŠHEADERSå’Œè¯·æ±‚æº
             return photo(session);
         }
 
         if (session.getUri().equals("/scancode")) {
-//              Èç¹ûÊÇÔò·¢ËÍCORSÏìÓ¦¸æËßä¯ÀÀHTTP·şÎñÖ§³ÖµÄMETHOD¼°HEADERSºÍÇëÇóÔ´
+//              å¦‚æœæ˜¯åˆ™å‘é€CORSå“åº”å‘Šè¯‰æµè§ˆHTTPæœåŠ¡æ”¯æŒçš„METHODåŠHEADERSå’Œè¯·æ±‚æº
             return scancode(session);
         }
 
         ;
-        //¿ÉÒÔ¿´µ½ÊÇÊ²Ã´ÇëÇó·½Ê½
+        //å¯ä»¥çœ‹åˆ°æ˜¯ä»€ä¹ˆè¯·æ±‚æ–¹å¼
         Method method = session.getMethod();
         Response resp = newFixedLengthResponse(session.getUri());
 
@@ -110,18 +110,20 @@ public class AndroidWebServer extends NanoHTTPD {
         JSONObject data = new JSONObject();
         String Json = "{'code':200,'datetimes':'','deviceid':'1db7727cc6','instruct':'scancode','msg':'success','objectId':'1db7727cc6','username':'username'}";
         ReceiveMsgBean msgBean = JSONObject.parseObject(Json, ReceiveMsgBean.class);
-        Log.d("hallow", "Json=" + Json);
-        Log.d("hallow", "msgBean=" + msgBean);
+//        Log.d("hallow", "Json=" + Json);
+//        Log.d("hallow", "msgBean=" + msgBean);
         EventBus.getDefault().post(msgBean);
+
         String text=webActivity.geturl();
+
         data.put("scancode", text);
 //        data.put("text","asd");
         map.put("status", 0);
         map.put("msg", "");
         map.put("data", data);
+        Log.d("scancode", "map=" + map.toJSONString());
         Response resp = newFixedLengthResponse(map.toJSONString());
         resp.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS, TRACE, CONNECT, PATCH, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK");
-        Log.d("hallow", "map=" + map.toJSONString());
         String origin=session.getHeaders().get("origin");
         resp.addHeader("Access-Control-Allow-Origin", origin);
         resp.addHeader("Access-Control-Allow-Headers", "*");
@@ -132,7 +134,7 @@ public class AndroidWebServer extends NanoHTTPD {
     }
 
     /**
-     * ÅĞ¶ÏÊÇ·ñÎªCORS Ô¤¼ìÇëÇóÇëÇó(Preflight)
+     * åˆ¤æ–­æ˜¯å¦ä¸ºCORS é¢„æ£€è¯·æ±‚è¯·æ±‚(Preflight)
      *
      * @param session
      * @return
@@ -147,7 +149,7 @@ public class AndroidWebServer extends NanoHTTPD {
     }
 
     /**
-     * ÏòÏìÓ¦°üÖĞÌí¼ÓCORS°üÍ·Êı¾İ
+     * å‘å“åº”åŒ…ä¸­æ·»åŠ CORSåŒ…å¤´æ•°æ®
      *
      * @param session
      * @return
@@ -177,18 +179,18 @@ public class AndroidWebServer extends NanoHTTPD {
     }
 
     /**
-     * ·â×°ÏìÓ¦°ü
+     * å°è£…å“åº”åŒ…
      *
-     * @param session httpÇëÇó
-     * @param resp    ÏìÓ¦°ü
+     * @param session httpè¯·æ±‚
+     * @param resp    å“åº”åŒ…
      * @return resp
      */
     private Response wrapResponse(IHTTPSession session, Response resp) {
         if (null != resp) {
             Map<String, String> headers = session.getHeaders();
 
-            // Èç¹ûÇëÇóÍ·ÖĞ°üº¬'Origin',ÔòÏìÓ¦Í·ÖĞ'Access-Control-Allow-Origin'Ê¹ÓÃ´ËÖµ·ñÔòÎª'*'
-            // nanohttd½«ËùÓĞÇëÇóÍ·µÄÃû³ÆÇ¿ÖÆ×ªÎªÁËĞ¡Ğ´
+            // å¦‚æœè¯·æ±‚å¤´ä¸­åŒ…å«'Origin',åˆ™å“åº”å¤´ä¸­'Access-Control-Allow-Origin'ä½¿ç”¨æ­¤å€¼å¦åˆ™ä¸º'*'
+            // nanohttdå°†æ‰€æœ‰è¯·æ±‚å¤´çš„åç§°å¼ºåˆ¶è½¬ä¸ºäº†å°å†™
 //            String origin = MoreObjects.firstNonNull(headers.get("origin", "*");
 
 //            String  requestHeaders = headers.get("access-control-request-headers");
