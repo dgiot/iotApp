@@ -55,7 +55,7 @@ public class AndroidWebServer extends NanoHTTPD {
                 }
                 if (url.equals("/scancode")) {
 //              如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
-                    return scancode(session);
+                    return scancode(session, parms);
                 }
             }
 
