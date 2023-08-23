@@ -14,16 +14,11 @@ import java.io.IOException;
 public class DgiotUtils {
 
     public static Uri createImageFile() throws IOException {
-        File file = new File(Environment.getExternalStorageDirectory(), "/temp/" + System.currentTimeMillis() + ".jpg");
+        File file = new File(Environment.getExternalStorageDirectory(), "/dgiot/" + System.currentTimeMillis() + ".jpg");
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
         Uri imageUri = Uri.fromFile(file);
         return imageUri;
     }
-
-
-
-
-
 }

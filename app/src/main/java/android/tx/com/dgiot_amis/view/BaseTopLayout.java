@@ -22,8 +22,6 @@ import android.widget.TextView;
  * 标题View
  */
 public class BaseTopLayout extends LinearLayout {
-
-
     private String strTitle = "",strRight = "";
     private ImageView imgRight,imgBack , imgRight2;
     private int imgId,textRightColor ,imgId2;

@@ -1,9 +1,11 @@
 package android.tx.com.dgiot_amis;
 
 
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -51,6 +53,10 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
 
     public static String url = "";
     public static boolean newset = false;
+
+    private File myRecAudioFile;
+    private File dir;
+    private MediaRecorder recorder;
     private TakePhoto takePhoto;
     private WebView mWebView;
     private String mToken, mUpImgUrl, mObjId, mIp;
@@ -62,7 +68,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     public LoadingDialog proDialog;
     private int intType;
 
-    private static final String QR_KEY = "scancode", PHOTO_KEY = "photo";
+    private static final String QR_KEY = "scancode", PHOTO_KEY = "photo", UPLOAD_KEY = "upload";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,12 +91,19 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
 
         if (!mToken.equals("") && !mIp.equals("") && !mObjId.equals("")) {
             DgiotService.startService(mActivity, mIp, mObjId, mToken);
-            Log.e("sssd", mIp + "   " + mObjId + "    " + mToken);
-            mUpImgUrl = "http://" + mIp + ":1250/upload";
+            Log.e("dgiot_2log", mIp + "   " + mObjId + "    " + mToken);
+            mUpImgUrl = "http://" + mIp + "/upload";
             initCookie(mToken);
         }
 
 
+        File defaultDir = Environment.getExternalStorageDirectory();
+        String path = defaultDir.getAbsolutePath()+File.separator+"V"+File.separator;//创建文件夹存放视频
+        dir = new File(path);
+        if(!dir.exists()){
+            dir.mkdir();
+        }
+        recorder = new MediaRecorder();
         initWeb();
     }
 
@@ -102,8 +115,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
         cookieStore.saveCookie(httpUrl, cookie);
     }
 
-
-    private void initMqtt(int i) {
+    private void doInstruct(int i) {
         intType = i;
         switch (i) {
             case 0:
@@ -151,13 +163,18 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
         mWebView.getSettings().setAllowFileAccess(true);
         mWebView.getSettings().setAllowFileAccessFromFileURLs(true);
         mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        mWebView.getSettings().setDomStorageEnabled(true);//设置H5可以本地存储
+
+        mWebView.getSettings().setDomStorageEnabled(true); //设置H5可以本地存储
         // mWebView.setWebViewClient(new CustomWebViewClient(mWebView));
         mWebView.setWebViewClient(new MyWebViewClient());
-        mWebView.setWebChromeClient(new MyWebChromeClient());//设置可以打开图片管理器
-
+        mWebView.setWebChromeClient(new MyWebChromeClient()); //设置可以打开图片管理器
+         /**设置允许JS弹窗**/
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.addJavascriptInterface(new JSToken(), "jstoken");
+        mWebView.getSettings().setUseWideViewPort(true);
+
+        mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        mWebView.getSettings().setDomStorageEnabled(true);   //设置H5可以本地存储
+        mWebView.getSettings().setLoadWithOverviewMode(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
@@ -166,37 +183,19 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     }
 
 
-    public class JSToken {
-        // @JavascriptInterface 必须加上
-        @JavascriptInterface
-        public void setJsToken(String ip, String objId, String token) {
-            //Toast.makeText(WebActivity.this,ip,Toast.LENGTH_LONG).show();
-            Log.e("sssd", "token ===  " + token);
-            mObjId = objId;
-            mToken = token;
-            mUpImgUrl = "http://" + ip + ":1250/upload";
-
-            Log.e("sssd", ip + "   " + objId + "    " + token);
-            DgiotService.startService(mActivity, ip, objId, token);
-
-            initCookie(mToken);
-
-            SharedPreUtil.saveData(mActivity, "ip", ip);
-            SharedPreUtil.saveData(mActivity, "objId", objId);
-            SharedPreUtil.saveData(mActivity, "token", token);
-        }
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onReceiveMsg(ReceiveMsgBean msgBean) {
         if (msgBean != null) {
             receiveMsgBean = msgBean;
             switch (receiveMsgBean.getInstruct()) {
                 case PHOTO_KEY:
-                    initMqtt(0);
+                    doInstruct(0);
                     break;
+                case UPLOAD_KEY:
+                    doInstruct(1);
+					  break;
                 case QR_KEY:
-                    initMqtt(2);
+                    doInstruct(2);
                     break;
                 default:
                     break;
@@ -209,14 +208,13 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     public void takeSuccess(TResult result) {
         super.takeSuccess(result);
         String iconPath = result.getImage().getOriginalPath();
-        Log.e("sssd", "imagePath ===  " + iconPath);
-        onUpImg(iconPath);
+        onUpImg(iconPath, receiveMsgBean.getToken(), receiveMsgBean.getUrl() + "/upload", receiveMsgBean.getPath());
     }
 
     @Override
     public void takeFail(TResult result, String msg) {
         super.takeFail(result, msg);
-        // Toast.makeText(WebActivity.this, "Error:" + msg, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(WebActivity.this, "Error:" + msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -226,15 +224,12 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
 
 
     private class MyWebChromeClient extends WebChromeClient {
-
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-
         }
 
     }
-
 
     private class MyWebViewClient extends WebViewClient {
         @Override
@@ -243,14 +238,13 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
             return super.shouldOverrideUrlLoading(view, url);
         }
 
-
         @Override
         public void onPageFinished(WebView view, String url) {
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
-
         }
     }
+
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -268,17 +262,19 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     }
 
 
-    private void onUpImg(String fileUrl) {
+    private void onUpImg(String fileUrl, String token, String UpImagUrl, String path ) {
         proDialog.setLoadingText("正在上传").show();
-        OkGo.<String>post(mUpImgUrl)
+        Log.e("dgiot_log", "token ===  " + token);
+        Log.e("dgiot_log", "mUpImgUrl ===  " + UpImagUrl);
+        OkGo.<String>post(UpImagUrl)
                 .tag(WebActivity.this)
                 .params("file", new File(fileUrl))
                 .params("name", "file")
-                .params("auth_token", mToken)
+                .params("auth_token", token)
                 .params("scene", "app")
                 .params("filename", System.currentTimeMillis() + ".png")
                 .params("output", "json")
-                .params("path", "dgiot_file/uni_app/png/")
+                .params("path", "dgiot_file/" + path)
                 .params("code", "")
                 .params("submit", "upload")
                 .execute(new StringCallback() {
@@ -286,12 +282,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
                     public void onSuccess(Response<String> response) {
                         UpImgBackBean imgBackBean = JSONObject.parseObject(response.body().toString(), UpImgBackBean.class);
                         if (receiveMsgBean != null) {
-                            jsonObject = new JSONObject();
-                            jsonObject.put("deviceid", receiveMsgBean.getDeviceid());
-                            jsonObject.put("instruct", "photo");
-                            jsonObject.put("url", imgBackBean.getPath());
                             seturl(imgBackBean.getPath());
-                            DgiotService.publish(JSONObject.toJSONString(jsonObject));
                             if (proDialog != null) {
                                 proDialog.close();
                             }
@@ -305,7 +296,7 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
                         if (proDialog != null) {
                             proDialog.close();
                         }
-                        Log.e("sssd", "上传文件错误" + throwable.getMessage());
+                        Log.e("dgiot_log", "上传文件错误" + throwable.getMessage());
                     }
                 });
     }
@@ -316,7 +307,6 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
     private void onInspectJurisdiction() {
         String[] perms = {
                 Manifest.permission.CAMERA,
-
         };
         if (EasyPermissions.hasPermissions(mActivity, perms)) {
             if (intType == 2) {
@@ -361,8 +351,8 @@ public class WebActivity extends TakePhotoActivity implements EasyPermissions.Pe
                 jsonObject.put("instruct", QR_KEY);
                 jsonObject.put("url", data.getStringExtra("mCode"));
                 seturl(data.getStringExtra("mCode"));
+                Log.i("dgiot_log", " onActive result ： " + jsonObject.toJSONString());
 //                DgiotService.publish( JSONObject.toJSONString( jsonObject ) );
-
                 break;
             default:
                 break;

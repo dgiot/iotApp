@@ -55,33 +55,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main2);
-//        editText = findViewById(R.id.edit_url);
-//        btnWeb = findViewById(R.id.btn_web);
-//        AndroidWebServer androidWebServer = new AndroidWebServer(12345);
-//        try {
-//            androidWebServer.start();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        btnWeb.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if( editText.getText().toString().trim().equals("") ){
-//                    intent = new Intent(MainActivity.this , WebActivity.class);
-//                    intent.putExtra("webUrl","http://127.0.0.1:12345");
-//                    startActivity(intent);
-//                    return;
-//                }
-//            intent = new Intent(MainActivity.this , WebActivity.class);
-//                intent.putExtra("webUrl",editText.getText().toString().trim());
-//                startActivity(intent);
-//            }
-//        });
-//    }
 }

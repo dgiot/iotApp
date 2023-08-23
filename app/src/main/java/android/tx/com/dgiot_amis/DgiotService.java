@@ -79,7 +79,7 @@ public class DgiotService extends Service {
      * @param message 消息
      */
     public static void publish(String message) {
-        Log.e("sssd", message);
+        Log.e("dgiot_log", message);
         String topic = RESPONSE_TOPIC;
         Integer qos = 2;
         Boolean retained = false;
@@ -133,7 +133,7 @@ public class DgiotService extends Service {
             try {
                 mMqttConnectOptions.setWill(topic, message.getBytes(), qos.intValue(), retained.booleanValue());
             } catch (Exception e) {
-                Log.i(TAG, "Exception Occured", e);
+                Log.i("dgiot_log", "mqtt Exception Occured", e);
                 doConnect = false;
                 iMqttActionListener.onFailure(null, e);
             }
@@ -164,10 +164,10 @@ public class DgiotService extends Service {
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         if (info != null && info.isAvailable()) {
             String name = info.getTypeName();
-            Log.i(TAG, "当前网络名称：" + name);
+            Log.i("dgiot_log", " mqtt当前网络名称：" + name);
             return true;
         } else {
-            Log.i(TAG, "没有可用网络");
+            Log.i("dgiot_log", "mqtt没有可用网络");
             /*没有可用网络的时候，延迟3秒再尝试重连*/
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -184,7 +184,7 @@ public class DgiotService extends Service {
 
         @Override
         public void onSuccess(IMqttToken arg0) {
-            Log.i(TAG, "连接成功 ");
+            Log.i("dgiot_log", "mqtt连接成功 ");
             try {
                 mqttAndroidClient.subscribe(BIND_TOPIC, 2);//订阅主题，参数：主题、服务质量
             } catch (MqttException e) {
@@ -195,7 +195,7 @@ public class DgiotService extends Service {
         @Override
         public void onFailure(IMqttToken arg0, Throwable arg1) {
             arg1.printStackTrace();
-            Log.i(TAG, "连接失败 ");
+            Log.i("dgiot_log", " mqtt连接失败 ");
             mNum++;
             if (mNum < 5) {
                 doClientConnection();//连接失败，重连（可关闭服务器进行模拟）
@@ -207,10 +207,7 @@ public class DgiotService extends Service {
     private MqttCallback mqttCallback = new MqttCallback() {
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            Log.i(TAG, "收到消息： " + new String(message.getPayload()));
-            //收到消息，这里弹出Toast表示。如果需要更新UI，可以使用广播或者EventBus进行发送
-            // Toast.makeText(getApplicationContext(), "messageArrived: " + new String(message.getPayload()), Toast.LENGTH_LONG).show();
-            //收到其他客户端的消息后，响应给对方告知消息已到达或者消息有问题等
+            Log.i("dgiot_log", " mqtt收到消息： " + new String(message.getPayload()));
 
             ReceiveMsgBean msgBean = JSONObject.parseObject(message.getPayload(), ReceiveMsgBean.class);
             EventBus.getDefault().post(msgBean);
@@ -224,7 +221,7 @@ public class DgiotService extends Service {
 
         @Override
         public void connectionLost(Throwable arg0) {
-            Log.i(TAG, "连接断开 ");
+            Log.i("dgiot_log", "mqtt 连接断开 ");
             doClientConnection();//连接断开，重连
         }
     };

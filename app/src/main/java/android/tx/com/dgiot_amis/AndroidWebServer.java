@@ -16,8 +16,6 @@ import fi.iki.elonen.NanoHTTPD;
 
 
 public class AndroidWebServer extends NanoHTTPD {
-
-
     public AndroidWebServer(int port) {
         super(port);
     }
@@ -30,56 +28,93 @@ public class AndroidWebServer extends NanoHTTPD {
 
     @Override
     public Response serve(IHTTPSession session) {
-        String PreflightRequest;
         webActivity.setnewset(false);
-        Log.d("hallow", "session=" + session.getHeaders().toString());
-        if (isPreflightRequest(session)) {
+        try {
+            if (isPreflightRequest(session)) {
 //              如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
-            return responseCORS(session);
+                return responseCORS(session);
+            }
+            else
+            {
+                Method method = session.getMethod();
+                Map header = session.getHeaders();
+                String url = session.getUri();
+                session.parseBody(new HashMap<>());
+                Map parms = new HashMap();
+                parms = session.getParms();
+                parms.put("token",header.get("sessiontoken").toString());
+                parms.put("url",header.get("origin").toString());
+                JSONObject json = new JSONObject(parms);
+                if (method.toString().equals("GET") && url.equals("/photo")) {
+               // 如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
+                    return get_photo(session, parms);
+                }
+                if (method.toString().equals("GET") && url.equals("/upload")) {
+                    // 如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
+                    return get_upload(session, parms);
+                }
+                if (url.equals("/scancode")) {
+//              如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
+                    return scancode(session);
+                }
+            }
+
         }
-        if (session.getUri().equals("/photo")) {
-//              如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
-            return photo(session);
+        catch (IOException e){
+         e.printStackTrace();
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
         }
 
-        if (session.getUri().equals("/scancode")) {
-//              如果是则发送CORS响应告诉浏览HTTP服务支持的METHOD及HEADERS和请求源
-            return scancode(session);
-        }
-
-        ;
         //可以看到是什么请求方式
-        Method method = session.getMethod();
         Response resp = newFixedLengthResponse(session.getUri());
 
         return resp;
 
     }
 
-
-
-
-
-    public Response photo(IHTTPSession session) {
-
-        JSONObject map = new JSONObject();
-        JSONObject data = new JSONObject();
-
-        String Json = "{'code':200,'datetimes':'','deviceid':'1db7727cc6','instruct':'photo','msg':'success','objectId':'1db7727cc6','username':'username'}";
-        ReceiveMsgBean msgBean = JSONObject.parseObject(Json, ReceiveMsgBean.class);
-        Log.d("hallow", "Json=" + Json);
-        Log.d("hallow", "msgBean=" + msgBean);
+    public Response get_photo(IHTTPSession session, Map parms) {
+        JSONObject msgBeanJson = new JSONObject(parms);
+        msgBeanJson.put("instruct","photo");
+        String path = parms.get("type").toString() + "/"+ parms.get("objectId").toString() + "/";
+        msgBeanJson.put("path", path);
+        ReceiveMsgBean msgBean = JSONObject.parseObject(msgBeanJson.toJSONString(), ReceiveMsgBean.class);
         EventBus.getDefault().post(msgBean);
         String text=webActivity.geturl();
-
+        Log.d("dgiot_log", "text=" + text);
+        JSONObject req = new JSONObject();
+        req.put("status", 0);
+        req.put("msg", "");
+        JSONObject data = new JSONObject();
         data.put("photo", text);
-        map.put("status", 0);
-        map.put("msg", "");
-        map.put("data", data);
-        Response resp = newFixedLengthResponse(map.toJSONString());
+        req.put("data", data);
+        Response resp = newFixedLengthResponse(req.toJSONString());
         resp.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS, TRACE, CONNECT, PATCH, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK");
-        Log.d("hallow", "map=" + text);
+        String origin=session.getHeaders().get("origin");
+        resp.addHeader("Access-Control-Allow-Origin", origin);
+        resp.addHeader("Access-Control-Allow-Headers", "*");
+        resp.addHeader("Access-Control-Max-Age", "3600");
+        resp.addHeader("Access-Control-Allow-Credentials", "true");
+        return resp;
+    }
 
+    public Response get_upload(IHTTPSession session, Map parms) {
+        JSONObject msgBeanJson = new JSONObject(parms);
+        msgBeanJson.put("instruct","upload");
+        String path = parms.get("type").toString() + "/"+ parms.get("objectId").toString() + "/";
+        msgBeanJson.put("path", path);
+        ReceiveMsgBean msgBean = JSONObject.parseObject(msgBeanJson.toJSONString(), ReceiveMsgBean.class);
+        EventBus.getDefault().post(msgBean);
+        String text=webActivity.geturl();
+        Log.d("dgiot_log", "text=" + text);
+        JSONObject req = new JSONObject();
+        req.put("status", 0);
+        req.put("msg", "");
+        JSONObject data = new JSONObject();
+        data.put("photo", text);
+        req.put("data", data);
+        Response resp = newFixedLengthResponse(req.toJSONString());
+        resp.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS, TRACE, CONNECT, PATCH, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK");
         String origin=session.getHeaders().get("origin");
         resp.addHeader("Access-Control-Allow-Origin", origin);
         resp.addHeader("Access-Control-Allow-Headers", "*");
@@ -101,27 +136,21 @@ public class AndroidWebServer extends NanoHTTPD {
         return text;
     }
 
-
-
-
-    public Response scancode(IHTTPSession session) {
-
-        JSONObject map = new JSONObject();
-        JSONObject data = new JSONObject();
-        String Json = "{'code':200,'datetimes':'','deviceid':'1db7727cc6','instruct':'scancode','msg':'success','objectId':'1db7727cc6','username':'username'}";
-        ReceiveMsgBean msgBean = JSONObject.parseObject(Json, ReceiveMsgBean.class);
-//        Log.d("hallow", "Json=" + Json);
-//        Log.d("hallow", "msgBean=" + msgBean);
+    public Response scancode(IHTTPSession session, Map parms) {
+        JSONObject msgBeanJson = new JSONObject(parms);
+        msgBeanJson.put("instruct","upload");
+        msgBeanJson.put("instruct","scancode");
+        ReceiveMsgBean msgBean = JSONObject.parseObject(msgBeanJson.toJSONString(), ReceiveMsgBean.class);
         EventBus.getDefault().post(msgBean);
 
         String text=webActivity.geturl();
-
-        data.put("scancode", text);
-//        data.put("text","asd");
+        JSONObject map = new JSONObject();
         map.put("status", 0);
         map.put("msg", "");
+        JSONObject data = new JSONObject();
+        data.put("scancode", text);
         map.put("data", data);
-        Log.d("scancode", "map=" + map.toJSONString());
+        Log.d("dgiot_log", "map=" + map.toJSONString());
         Response resp = newFixedLengthResponse(map.toJSONString());
         resp.addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS, TRACE, CONNECT, PATCH, PROPFIND, PROPPATCH, MKCOL, MOVE, COPY, LOCK, UNLOCK");
         String origin=session.getHeaders().get("origin");
@@ -129,7 +158,6 @@ public class AndroidWebServer extends NanoHTTPD {
         resp.addHeader("Access-Control-Allow-Headers", "*");
         resp.addHeader("Access-Control-Max-Age", "3600");
         resp.addHeader("Access-Control-Allow-Credentials", "true");
-
         return resp;
     }
 

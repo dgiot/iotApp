@@ -9,6 +9,12 @@ public class ReceiveMsgBean {
 
     private String instruct = "";
     private String deviceid  = "";
+    private String token = "";
+
+    private String url = "";
+
+    private String path = "";
+
     private String other = "";
 
     public String getInstruct() {
@@ -19,6 +25,31 @@ public class ReceiveMsgBean {
         this.instruct = instruct;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+
     public String getDeviceid() {
         return deviceid;
     }
@@ -26,6 +57,7 @@ public class ReceiveMsgBean {
     public void setDeviceid(String deviceid) {
         this.deviceid = deviceid;
     }
+
 
     public String getOther() {
         return other;
